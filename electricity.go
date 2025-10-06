@@ -463,7 +463,7 @@ func queryElectricityWithRetry(room, roomCode string, workerID int) (string, err
 }
 
 // GetElectricityInfo 获取电量信息
-func GetElectricityInfo(room string, isRealTime bool) (map[string]interface{}, error) {
+func GetElectricityInfo(room string) (map[string]interface{}, error) {
 	dbMutex.RLock()
 	defer dbMutex.RUnlock()
 
@@ -485,16 +485,10 @@ func GetElectricityInfo(room string, isRealTime bool) (map[string]interface{}, e
 	result := map[string]interface{}{
 		"room":        room,
 		"electricity": elect,
+		"time":        timestamp.Format("2006-01-02 15:04:05"),
 	}
 
-	// 处理时间
-	if isRealTime {
-		result["time"] = time.Now().Format("2006-01-02 15:04:05")
-	} else {
-		result["time"] = timestamp.Format("2006-01-02 15:04:05")
-	}
-
-	// 实时计算充值信息
+	// 计算充值信息
 	rechargeInfo, err := calculateRechargeInfo(room)
 	if err == nil && rechargeInfo != nil {
 		result["recharge_amount"] = rechargeInfo["recharge_amount"]
